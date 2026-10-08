@@ -14,7 +14,7 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:18px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 header{position:sticky;top:0;z-index:5;background:#101318f2;border-bottom:1px solid var(--line);padding:14px 16px 12px;backdrop-filter:blur(12px)}
-h1{font-size:clamp(24px,4vw,34px);margin:0 0 4px;font-weight:900;letter-spacing:.01em}
+h1{font-size:clamp(24px,4vw,34px);margin:0 0 4px;font-weight:900;letter-spacing:.01em;overflow-wrap:anywhere}
 .sub{color:var(--muted);font-size:14px}
 main{max-width:850px;margin:0 auto;padding:12px}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
@@ -27,10 +27,14 @@ input,textarea{width:100%;font:inherit;color:var(--text);background:#0c0f14;bord
 textarea{min-height:115px;resize:vertical}
 label{display:block;font-size:14px;font-weight:750;color:var(--muted);margin:12px 0 5px}
 .song{border:1px solid var(--line);border-radius:14px;background:var(--panel);margin:9px 0;overflow:hidden}
-.songhead{width:100%;display:flex;align-items:center;gap:10px;text-align:left;background:transparent;border:0;border-radius:0;padding:16px 14px;font-size:clamp(21px,4.5vw,29px);line-height:1.2;font-weight:900}
+.songhead{width:100%;display:flex;align-items:center;gap:10px;text-align:left;background:transparent;border:0;border-radius:0;padding:17px 14px;font-size:clamp(25px,5vw,35px);line-height:1.22;font-weight:950}
 .songhead .songtitle{flex:1;overflow-wrap:anywhere}
-.chev{font-size:19px;color:var(--accent)}
-.notes{white-space:pre-wrap;padding:0 15px 17px;font-size:clamp(18px,3.7vw,23px);line-height:1.55;color:#fff}
+.chev{font-size:19px;color:var(--accent);flex-shrink:0}
+.notes{padding:0 15px 20px;font-size:clamp(30px,5.2vw,42px);line-height:1.45;color:#fff;overflow-x:auto}
+.note-line{min-height:1.45em;white-space:pre-wrap;overflow-wrap:anywhere}
+.note-table-wrap{max-width:100%;overflow-x:auto;margin:.1em 0 .25em}
+.note-table{border-collapse:collapse;font:inherit;line-height:inherit;white-space:pre;min-width:max-content}
+.note-table td{padding:0 1.05em .12em 0;vertical-align:top}
 .songactions{display:flex;gap:7px;flex-wrap:wrap;padding:0 14px 13px}
 .empty{padding:22px;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}
 .hidden{display:none!important}
@@ -44,11 +48,12 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
 </head>
 <body>
 <header>
-  <h1>SET LIST</h1>
+  <h1 id="listNameDisplay">SET LIST</h1>
   <div class="sub">Tap a song to show its notes. Tap another song to switch notes.</div>
 </header>
 <main>
   <div class="toolbar">
+    <button id="nameListBtn">Name set list</button>
     <button class="primary" id="addBtn">＋ Add song</button>
     <button id="editToggle">Edit list</button>
     <button id="exportBtn">Export backup</button>
@@ -61,6 +66,7 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
     <input id="songTitle" maxlength="160" placeholder="e.g. Sultans of Swing">
     <label for="songNotes">Performance notes</label>
     <textarea id="songNotes" placeholder="Intro, cues, key, ending, solos…"></textarea>
+    <div class="sub">Tip: tabs between items are displayed as columns. You can paste tab-separated notes from a document.</div>
     <div class="editrow">
       <button class="primary" id="saveSong">Save song</button>
       <button id="cancelEdit">Cancel</button>
@@ -70,7 +76,7 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
   <div id="status" role="status">Saved on this iPad.</div>
 </main>
 <footer>
-  Works offline after the app has been installed and opened online once. Use Export backup regularly to keep a copy of your songs and notes.
+  Works offline after the app has been installed and opened online once. Use Export backup regularly to keep a copy of your set list and notes.
 </footer>
 <script>
 (() => {
@@ -80,25 +86,47 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
     {id: makeId(), title:"Have You Ever Seen the Rain", notes:"Count-in:\n\nKey / cues:\n\nEnding:"},
     {id: makeId(), title:"New song", notes:"Add your notes here."}
   ];
-  let songs = loadSongs();
+  const loaded = loadData();
+  let songs = loaded.songs;
+  let listName = loaded.listName;
   let selectedId = null;
   let editingId = null;
   let editMode = false;
 
   const $ = id => document.getElementById(id);
   function makeId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
-  function loadSongs(){
+  function loadData(){
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw){const data=JSON.parse(raw);if(Array.isArray(data))return data;}
+      if(raw){
+        const data=JSON.parse(raw);
+        if(Array.isArray(data)) return {songs:data,listName:"SET LIST"};
+        if(data && Array.isArray(data.songs)) return {songs:data.songs,listName:typeof data.listName==="string"&&data.listName.trim()?data.listName.trim():"SET LIST"};
+      }
     } catch(e) {}
-    return starterSongs;
+    return {songs:starterSongs,listName:"SET LIST"};
   }
   function save(){
-    try {localStorage.setItem(STORAGE_KEY,JSON.stringify(songs));$("status").textContent="Saved on this iPad.";}
+    try {localStorage.setItem(STORAGE_KEY,JSON.stringify({listName,songs}));$("status").textContent="Saved on this iPad.";}
     catch(e){$("status").textContent="Could not save locally. Please export a backup."; }
   }
+  function renderNotes(container, text){
+    const lines=String(text||"No notes for this song yet.").split("\n");
+    lines.forEach(line=>{
+      if(line.includes("\t")){
+        const wrap=document.createElement("div");wrap.className="note-table-wrap";
+        const table=document.createElement("table");table.className="note-table";
+        const row=document.createElement("tr");
+        line.split("\t").forEach(cellText=>{const cell=document.createElement("td");cell.textContent=cellText;row.appendChild(cell);});
+        table.appendChild(row);wrap.appendChild(table);container.appendChild(wrap);
+      } else {
+        const row=document.createElement("div");row.className="note-line";row.textContent=line || " ";container.appendChild(row);
+      }
+    });
+  }
   function render(){
+    $("listNameDisplay").textContent=listName||"SET LIST";
+    document.title=(listName||"SET LIST")+" — Band Set List";
     const root=$("songs"); root.innerHTML="";
     if(!songs.length){root.innerHTML='<div class="empty">No songs yet. Tap “Add song” to begin.</div>';return;}
     songs.forEach((song,index)=>{
@@ -109,9 +137,7 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
       head.append(title,chev);
       head.addEventListener("click",()=>{selectedId=selectedId===song.id?null:song.id;render();});
       card.appendChild(head);
-      if(selectedId===song.id){
-        const notes=document.createElement("div");notes.className="notes";notes.textContent=song.notes||"No notes for this song yet.";card.appendChild(notes);
-      }
+      if(selectedId===song.id){const notes=document.createElement("div");notes.className="notes";renderNotes(notes,song.notes);card.appendChild(notes);}
       if(editMode){
         const actions=document.createElement("div");actions.className="songactions";
         const edit=actionButton("Edit",()=>openEditor(song.id));
@@ -124,57 +150,50 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
     });
   }
   function actionButton(text,fn){const b=document.createElement("button");b.className="small";b.textContent=text;b.addEventListener("click",fn);return b}
-  function showEditor(show){$("editor").classList.toggle("hidden",!show);}
+  function showEditor(show){$("editor").classList.toggle("hidden",!show)}
   function openEditor(id=null){
-    editingId=id;
-    const song=songs.find(s=>s.id===id);
+    editingId=id;const song=songs.find(s=>s.id===id);
     $("editorHeading").textContent=song?"Edit song":"Add song";
-    $("songTitle").value=song?song.title:"";
-    $("songNotes").value=song?song.notes:"";
-    showEditor(true);
-    $("songTitle").focus();
-    $("editor").scrollIntoView({behavior:"smooth",block:"start"});
+    $("songTitle").value=song?song.title:"";$("songNotes").value=song?song.notes:"";
+    showEditor(true);$("songTitle").focus();$("editor").scrollIntoView({behavior:"smooth",block:"start"});
   }
   function closeEditor(){editingId=null;showEditor(false);$("songTitle").value="";$("songNotes").value=""}
-  $("addBtn").addEventListener("click",()=>openEditor());
-  $("editToggle").addEventListener("click",()=>{
-    editMode=!editMode;$("editToggle").textContent=editMode?"Done editing":"Edit list";render();
+  $("nameListBtn").addEventListener("click",()=>{
+    const entered=prompt("Name this set list:",listName==="SET LIST"?"":listName);
+    if(entered===null)return;
+    listName=entered.trim()||"SET LIST";save();render();
   });
+  $("addBtn").addEventListener("click",()=>openEditor());
+  $("editToggle").addEventListener("click",()=>{editMode=!editMode;$("editToggle").textContent=editMode?"Done editing":"Edit list";render();});
   $("saveSong").addEventListener("click",()=>{
-    const title=$("songTitle").value.trim();
-    if(!title){$("songTitle").focus();$("status").textContent="Please enter a song title.";return;}
-    const notes=$("songNotes").value.trim();
+    const title=$("songTitle").value.trim();if(!title){$("songTitle").focus();$("status").textContent="Please enter a song title.";return;}
+    const notes=$("songNotes").value;
     if(editingId){const s=songs.find(x=>x.id===editingId);if(s){s.title=title;s.notes=notes;}}
     else {const song={id:makeId(),title,notes};songs.push(song);selectedId=song.id;}
     save();closeEditor();render();
   });
   $("cancelEdit").addEventListener("click",closeEditor);
   function moveSong(index,delta){const next=index+delta;if(next<0||next>=songs.length)return;[songs[index],songs[next]]=[songs[next],songs[index]];save();render();}
-  function deleteSong(id){
-    const s=songs.find(x=>x.id===id);if(!s)return;
-    if(!confirm('Delete "'+s.title+'"? This cannot be undone unless you have a backup.'))return;
-    songs=songs.filter(x=>x.id!==id);if(selectedId===id)selectedId=null;save();render();
-  }
+  function deleteSong(id){const s=songs.find(x=>x.id===id);if(!s)return;if(!confirm('Delete "'+s.title+'"? This cannot be undone unless you have a backup.'))return;songs=songs.filter(x=>x.id!==id);if(selectedId===id)selectedId=null;save();render();}
   $("exportBtn").addEventListener("click",()=>{
-    const blob=new Blob([JSON.stringify({format:"offline-band-setlist",version:1,exportedAt:new Date().toISOString(),songs},null,2)],{type:"application/json"});
-    const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="band-setlist-backup.json";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
-    $("status").textContent="Backup export requested. Save the JSON file somewhere safe.";
+    const blob=new Blob([JSON.stringify({format:"offline-band-setlist",version:2,exportedAt:new Date().toISOString(),listName,songs},null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="band-setlist-backup.json";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);$("status").textContent="Backup export requested. Save the JSON file somewhere safe.";
   });
   $("importBtn").addEventListener("click",()=>$("importFile").click());
   $("importFile").addEventListener("change",async e=>{
     const file=e.target.files&&e.target.files[0];if(!file)return;
     try{
-      const parsed=JSON.parse(await file.text());
-      const incoming=Array.isArray(parsed)?parsed:parsed.songs;
+      const parsed=JSON.parse(await file.text());const incoming=Array.isArray(parsed)?parsed:parsed.songs;
       if(!Array.isArray(incoming)||!incoming.every(s=>s&&typeof s.title==="string"&&typeof s.notes==="string"))throw new Error("Invalid backup");
       if(!confirm("Replace the current list with "+incoming.length+" imported songs? Export your current list first if you want to keep it."))return;
       songs=incoming.map(s=>({id:typeof s.id==="string"?s.id:makeId(),title:s.title,notes:s.notes}));
+      if(parsed&&!Array.isArray(parsed)&&typeof parsed.listName==="string")listName=parsed.listName.trim()||"SET LIST";
       selectedId=null;save();render();$("status").textContent="Backup imported.";
     }catch(err){alert("That file doesn't look like a valid set-list backup.");}
     finally{e.target.value="";}
   });
   if("serviceWorker" in navigator && location.protocol.startsWith("http")){
-    window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{$("status").textContent="Offline caching could not be enabled. Check hosting and reload while online."; }));
+    window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{$("status").textContent="Offline caching could not be enabled. Check hosting and reload while online.";}));
   }
   render();
 })();
