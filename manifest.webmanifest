@@ -1,0 +1,10 @@
+{
+  "name": "Band Set List",
+  "short_name": "Set List",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101318",
+  "theme_color": "#101318",
+  "description": "An offline set list with editable song notes."
+}
