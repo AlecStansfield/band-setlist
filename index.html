@@ -30,6 +30,9 @@ textarea{min-height:115px;resize:both;tab-size:18;max-width:100%;min-width:100%;
 .textarea-resize-handle:after{content:"⤡"}
 label{display:block;font-size:14px;font-weight:750;color:var(--muted);margin:12px 0 5px}
 .song{border:1px solid var(--line);border-radius:14px;background:var(--panel);margin:9px 0;overflow:hidden}
+.separator-item{background:transparent;border:0;border-radius:0;margin:9px 0;overflow:visible}
+.separator-line{height:0;border:0;border-top:3px solid var(--song-cyan);margin:18px 4px}
+.separator-item .songactions{padding-top:0}
 .songhead{width:100%;display:flex;align-items:center;gap:10px;text-align:left;background:transparent;border:0;border-radius:0;padding:17px 14px;font-size:clamp(25px,5vw,35px);line-height:1.22;font-weight:950}
 .songhead .songtitle{flex:1;overflow-wrap:anywhere;color:var(--song-cyan)}
 .songhead.selected .songtitle{color:#fff}
@@ -60,6 +63,7 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
   <div class="toolbar">
     <button id="nameListBtn">Name set list</button>
     <button class="primary" id="addBtn">＋ Add song</button>
+    <button id="addSeparatorBtn">＋ Add separator</button>
     <button id="editToggle">Edit list</button>
     <button id="exportBtn">Export backup</button>
     <button id="importBtn">Import backup</button>
@@ -150,22 +154,39 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
     document.title=(listName||"SET LIST")+" — Band Set List";
     const root=$("songs"); root.innerHTML="";
     if(!songs.length){root.innerHTML='<div class="empty">No songs yet. Tap “Add song” to begin.</div>';return;}
+    let songNumber=0;
     songs.forEach((song,index)=>{
-      const card=document.createElement("section");card.className="song";
-      const head=document.createElement("button");head.className="songhead"+(selectedId===song.id?" selected":"");head.setAttribute("aria-expanded",String(selectedId===song.id));
-      const title=document.createElement("span");title.className="songtitle";title.textContent=(index+1)+". "+song.title;
-      const chev=document.createElement("span");chev.className="chev";chev.textContent=selectedId===song.id?"▲":"▼";
-      head.append(title,chev);
-      head.addEventListener("click",()=>{selectedId=selectedId===song.id?null:song.id;render();});
-      card.appendChild(head);
-      if(selectedId===song.id){const notes=document.createElement("div");notes.className="notes";renderNotes(notes,song.notes);card.appendChild(notes);}
-      if(editMode){
-        const actions=document.createElement("div");actions.className="songactions";
-        const edit=actionButton("Edit",()=>openEditor(song.id));
-        const up=actionButton("↑ Move up",()=>moveSong(index,-1));up.disabled=index===0;
-        const down=actionButton("↓ Move down",()=>moveSong(index,1));down.disabled=index===songs.length-1;
-        const del=actionButton("Delete",()=>deleteSong(song.id));del.classList.add("danger");
-        actions.append(edit,up,down,del);card.appendChild(actions);
+      const isSeparator=song.type==="separator";
+      const card=document.createElement("section");
+      if(isSeparator){
+        card.className="separator-item";
+        const line=document.createElement("hr");line.className="separator-line";line.setAttribute("aria-label","Set break or section separator");
+        card.appendChild(line);
+        if(editMode){
+          const actions=document.createElement("div");actions.className="songactions";
+          const up=actionButton("↑ Move up",()=>moveSong(index,-1));up.disabled=index===0;
+          const down=actionButton("↓ Move down",()=>moveSong(index,1));down.disabled=index===songs.length-1;
+          const del=actionButton("Delete separator",()=>deleteSong(song.id));del.classList.add("danger");
+          actions.append(up,down,del);card.appendChild(actions);
+        }
+      } else {
+        songNumber++;
+        card.className="song";
+        const head=document.createElement("button");head.className="songhead"+(selectedId===song.id?" selected":"");head.setAttribute("aria-expanded",String(selectedId===song.id));
+        const title=document.createElement("span");title.className="songtitle";title.textContent=songNumber+". "+song.title;
+        const chev=document.createElement("span");chev.className="chev";chev.textContent=selectedId===song.id?"▲":"▼";
+        head.append(title,chev);
+        head.addEventListener("click",()=>{selectedId=selectedId===song.id?null:song.id;render();});
+        card.appendChild(head);
+        if(selectedId===song.id){const notes=document.createElement("div");notes.className="notes";renderNotes(notes,song.notes);card.appendChild(notes);}
+        if(editMode){
+          const actions=document.createElement("div");actions.className="songactions";
+          const edit=actionButton("Edit",()=>openEditor(song.id));
+          const up=actionButton("↑ Move up",()=>moveSong(index,-1));up.disabled=index===0;
+          const down=actionButton("↓ Move down",()=>moveSong(index,1));down.disabled=index===songs.length-1;
+          const del=actionButton("Delete",()=>deleteSong(song.id));del.classList.add("danger");
+          actions.append(edit,up,down,del);card.appendChild(actions);
+        }
       }
       root.appendChild(card);
     });
@@ -185,6 +206,12 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
     listName=entered.trim()||"SET LIST";save();render();
   });
   $("addBtn").addEventListener("click",()=>openEditor());
+  $("addSeparatorBtn").addEventListener("click",()=>{
+    // New separators are inserted at the top, then can be repositioned with Move up/down.
+    songs.unshift({id:makeId(),type:"separator"});
+    selectedId=null;save();render();
+    $("status").textContent="Separator added at the top. Use Edit list to move it.";
+  });
   $("editToggle").addEventListener("click",()=>{editMode=!editMode;$("editToggle").textContent=editMode?"Done editing":"Edit list";render();});
   $("saveSong").addEventListener("click",()=>{
     const title=$("songTitle").value.trim();if(!title){$("songTitle").focus();$("status").textContent="Please enter a song title.";return;}
@@ -195,7 +222,7 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
   });
   $("cancelEdit").addEventListener("click",closeEditor);
   function moveSong(index,delta){const next=index+delta;if(next<0||next>=songs.length)return;[songs[index],songs[next]]=[songs[next],songs[index]];save();render();}
-  function deleteSong(id){const s=songs.find(x=>x.id===id);if(!s)return;if(!confirm('Delete "'+s.title+'"? This cannot be undone unless you have a backup.'))return;songs=songs.filter(x=>x.id!==id);if(selectedId===id)selectedId=null;save();render();}
+  function deleteSong(id){const s=songs.find(x=>x.id===id);if(!s)return;const label=s.type==="separator"?"this separator":"\""+s.title+"\"";if(!confirm("Delete "+label+"? This cannot be undone unless you have a backup."))return;songs=songs.filter(x=>x.id!==id);if(selectedId===id)selectedId=null;save();render();}
   $("exportBtn").addEventListener("click",()=>{
     const blob=new Blob([JSON.stringify({format:"offline-band-setlist",version:3,exportedAt:new Date().toISOString(),listName,listTitle:listName,songs},null,2)],{type:"application/json"});
     const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="band-setlist-backup.json";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);$("status").textContent="Backup export requested. Save the JSON file somewhere safe.";
@@ -205,9 +232,9 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
     const file=e.target.files&&e.target.files[0];if(!file)return;
     try{
       const parsed=JSON.parse(await file.text());const incoming=Array.isArray(parsed)?parsed:parsed.songs;
-      if(!Array.isArray(incoming)||!incoming.every(s=>s&&typeof s.title==="string"&&typeof s.notes==="string"))throw new Error("Invalid backup");
+      if(!Array.isArray(incoming)||!incoming.every(s=>s&&((s.type==="separator")||(typeof s.title==="string"&&typeof s.notes==="string"))))throw new Error("Invalid backup");
       if(!confirm("Replace the current list with "+incoming.length+" imported songs? Export your current list first if you want to keep it."))return;
-      songs=incoming.map(s=>({id:typeof s.id==="string"?s.id:makeId(),title:s.title,notes:s.notes}));
+      songs=incoming.map(s=>s&&s.type==="separator"?({id:typeof s.id==="string"?s.id:makeId(),type:"separator"}):({id:typeof s.id==="string"?s.id:makeId(),title:s.title,notes:s.notes}));
       if(parsed&&!Array.isArray(parsed)){
         const importedName=[parsed.listName,parsed.listTitle,parsed.setListName].find(v=>typeof v==="string"&&v.trim());
         if(importedName) listName=importedName.trim();
