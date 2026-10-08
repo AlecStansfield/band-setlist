@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#101318">
+<meta name="theme-color" content="#1a2029">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Set List">
 <link rel="manifest" href="manifest.webmanifest">
 <title>Band Set List</title>
 <style>
-:root{color-scheme:dark;--bg:#101318;--panel:#1a2029;--line:#343d4b;--text:#f7f8fa;--muted:#b8c0cc;--accent:#9bd5ff;--danger:#ffb4ab}
+:root{color-scheme:dark;--bg:#1a2029;--panel:#000000;--line:#343d4b;--text:#f7f8fa;--muted:#b8c0cc;--accent:#9bd5ff;--danger:#ffb4ab}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:18px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-header{position:sticky;top:0;z-index:5;background:#101318f2;border-bottom:1px solid var(--line);padding:14px 16px 12px;backdrop-filter:blur(12px)}
+header{position:sticky;top:0;z-index:5;background:#1a2029f2;border-bottom:1px solid var(--line);padding:14px 16px 12px;backdrop-filter:blur(12px)}
 h1{font-size:clamp(24px,4vw,34px);margin:0 0 4px;font-weight:900;letter-spacing:.01em;overflow-wrap:anywhere}
 .sub{color:var(--muted);font-size:14px}
 main{max-width:850px;margin:0 auto;padding:12px}
@@ -24,7 +24,10 @@ button.primary{background:#d7edff;color:#101820;border-color:#d7edff}
 button.small{font-size:15px;padding:7px 10px}
 button.danger{color:var(--danger)}
 input,textarea{width:100%;font:inherit;color:var(--text);background:#0c0f14;border:1px solid #4b5667;border-radius:10px;padding:11px}
-textarea{min-height:115px;resize:vertical;tab-size:18}
+textarea{min-height:115px;resize:both;tab-size:18;max-width:100%;min-width:100%;overflow:auto}
+.textarea-resize-wrap{position:relative;width:100%}
+.textarea-resize-handle{position:absolute;right:3px;bottom:3px;width:25px;height:25px;display:flex;align-items:center;justify-content:center;color:#b8c0cc;background:#252d39;border:1px solid #4b5667;border-radius:6px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:nwse-resize;font-size:18px;line-height:1;z-index:2}
+.textarea-resize-handle:after{content:"⤡"}
 label{display:block;font-size:14px;font-weight:750;color:var(--muted);margin:12px 0 5px}
 .song{border:1px solid var(--line);border-radius:14px;background:var(--panel);margin:9px 0;overflow:hidden}
 .songhead{width:100%;display:flex;align-items:center;gap:10px;text-align:left;background:transparent;border:0;border-radius:0;padding:17px 14px;font-size:clamp(25px,5vw,35px);line-height:1.22;font-weight:950}
@@ -66,8 +69,8 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
     <label for="songTitle">Song title</label>
     <input id="songTitle" maxlength="160" placeholder="e.g. Sultans of Swing">
     <label for="songNotes">Performance notes</label>
-    <textarea id="songNotes" placeholder="Intro, cues, key, ending, solos…"></textarea>
-    <div class="sub">Tip: tabs between items are displayed as columns. You can paste tab-separated notes from a document.</div>
+    <div class="textarea-resize-wrap"><textarea id="songNotes" placeholder="Intro, cues, key, ending, solos…"></textarea><div id="notesResizeHandle" class="textarea-resize-handle" role="button" aria-label="Resize notes box" title="Drag to resize notes box"></div></div>
+    <div class="sub">Tip: tabs between items are displayed as columns. Use **bold text** to make words bold in the displayed notes. Drag the small handle at the bottom-right to resize this box.</div>
     <div class="editrow">
       <button class="primary" id="saveSong">Save song</button>
       <button id="cancelEdit">Cancel</button>
@@ -111,6 +114,15 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
     try {localStorage.setItem(STORAGE_KEY,JSON.stringify({listName,songs}));$("status").textContent="Saved on this iPad.";}
     catch(e){$("status").textContent="Could not save locally. Please export a backup."; }
   }
+  function appendFormattedText(el, text){
+    // Support **bold** markup while treating all other text as plain text.
+    const parts=String(text??"").split(/(\*\*.*?\*\*)/g);
+    parts.forEach(part=>{
+      if(part.startsWith("**") && part.endsWith("**") && part.length>=4){
+        const strong=document.createElement("strong");strong.textContent=part.slice(2,-2);el.appendChild(strong);
+      } else { el.appendChild(document.createTextNode(part)); }
+    });
+  }
   function renderNotes(container, text){
     // Render all note lines in one shared CSS grid. This makes tab-separated
     // columns line up across rows and gives a controllable gap at display font size.
@@ -123,11 +135,11 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
       if(cells){
         for(let i=0;i<columnCount;i++){
           const cell=document.createElement("div");cell.className="note-grid-cell";
-          cell.textContent=(cells[i]||"")||"\u00a0";if(i===0)cell.style.paddingRight="0.35em";grid.appendChild(cell);
+          appendFormattedText(cell,(cells[i]||"")||"\u00a0");if(i===0)cell.style.paddingRight="0.35em";grid.appendChild(cell);
         }
       } else {
         const row=document.createElement("div");row.className="note-grid-plain";
-        row.textContent=line||"\u00a0";grid.appendChild(row);
+        appendFormattedText(row,line||"\u00a0");grid.appendChild(row);
       }
     });
     container.appendChild(grid);
@@ -203,6 +215,21 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
       selectedId=null;save();render();$("status").textContent="Backup imported: "+(listName||"SET LIST");
     }catch(err){alert("That file doesn't look like a valid set-list backup.");}
     finally{e.target.value="";}
+  });
+  // A visible drag handle provides textarea resizing on iPad, where native resize grips may be absent.
+  const notesBox=$("songNotes"), resizeHandle=$("notesResizeHandle");
+  resizeHandle.addEventListener("pointerdown",ev=>{
+    ev.preventDefault();
+    const startX=ev.clientX, startY=ev.clientY;
+    const startWidth=notesBox.getBoundingClientRect().width, startHeight=notesBox.getBoundingClientRect().height;
+    resizeHandle.setPointerCapture(ev.pointerId);
+    const move=e=>{
+      const width=Math.max(260,Math.min(window.innerWidth-40,startWidth+(e.clientX-startX)));
+      const height=Math.max(115,Math.min(window.innerHeight-100,startHeight+(e.clientY-startY)));
+      notesBox.style.width=width+"px";notesBox.style.minWidth="0";notesBox.style.height=height+"px";
+    };
+    const done=()=>{resizeHandle.removeEventListener("pointermove",move);resizeHandle.removeEventListener("pointerup",done);resizeHandle.removeEventListener("pointercancel",done);};
+    resizeHandle.addEventListener("pointermove",move);resizeHandle.addEventListener("pointerup",done);resizeHandle.addEventListener("pointercancel",done);
   });
   if("serviceWorker" in navigator && location.protocol.startsWith("http")){
     window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{$("status").textContent="Offline caching could not be enabled. Check hosting and reload while online.";}));
