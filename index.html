@@ -33,7 +33,9 @@ label{display:block;font-size:14px;font-weight:750;color:var(--muted);margin:12p
 .notes{padding:0 15px 20px;font-size:clamp(30px,5.2vw,42px);line-height:1.18;color:#fff;overflow-x:auto}
 .note-line{min-height:1.18em;white-space:pre-wrap;overflow-wrap:anywhere}
 .note-tab-wrap{max-width:100%;overflow-x:auto;margin:.02em 0 .08em}
-.note-tab-line{white-space:pre;tab-size:18;width:max-content;min-width:100%;min-height:1.18em}
+.note-grid{display:grid;width:max-content;min-width:100%;align-items:baseline;column-gap:.55em;row-gap:0}
+.note-grid-cell{white-space:pre;min-height:1.18em}
+.note-grid-plain{grid-column:1 / -1;white-space:pre-wrap;overflow-wrap:anywhere;min-height:1.18em}
 .songactions{display:flex;gap:7px;flex-wrap:wrap;padding:0 14px 13px}
 .empty{padding:22px;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}
 .hidden{display:none!important}
@@ -110,18 +112,25 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
     catch(e){$("status").textContent="Could not save locally. Please export a backup."; }
   }
   function renderNotes(container, text){
+    // Render all note lines in one shared CSS grid. This makes tab-separated
+    // columns line up across rows and gives a controllable gap at display font size.
     const lines=String(text||"No notes for this song yet.").split("\n");
-    lines.forEach(line=>{
-      if(line.includes("\t")){
-        // Keep the literal TAB characters so the browser aligns text to tab stops,
-        // rather than converting each segment into a table cell with different spacing.
-        const wrap=document.createElement("div");wrap.className="note-tab-wrap";
-        const row=document.createElement("div");row.className="note-tab-line";row.textContent=line || " ";
-        wrap.appendChild(row);container.appendChild(wrap);
+    const rows=lines.map(line=>({line, cells:line.includes("\t")?line.split("\t"):null}));
+    const columnCount=Math.max(1,...rows.map(r=>r.cells?r.cells.length:1));
+    const grid=document.createElement("div");grid.className="note-grid";
+    grid.style.gridTemplateColumns=`repeat(${columnCount}, max-content)`;
+    rows.forEach(({line,cells})=>{
+      if(cells){
+        for(let i=0;i<columnCount;i++){
+          const cell=document.createElement("div");cell.className="note-grid-cell";
+          cell.textContent=(cells[i]||"")||"\u00a0";grid.appendChild(cell);
+        }
       } else {
-        const row=document.createElement("div");row.className="note-line";row.textContent=line || " ";container.appendChild(row);
+        const row=document.createElement("div");row.className="note-grid-plain";
+        row.textContent=line||"\u00a0";grid.appendChild(row);
       }
     });
+    container.appendChild(grid);
   }
   function render(){
     $("listNameDisplay").textContent=listName||"SET LIST";
@@ -175,7 +184,7 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
   function moveSong(index,delta){const next=index+delta;if(next<0||next>=songs.length)return;[songs[index],songs[next]]=[songs[next],songs[index]];save();render();}
   function deleteSong(id){const s=songs.find(x=>x.id===id);if(!s)return;if(!confirm('Delete "'+s.title+'"? This cannot be undone unless you have a backup.'))return;songs=songs.filter(x=>x.id!==id);if(selectedId===id)selectedId=null;save();render();}
   $("exportBtn").addEventListener("click",()=>{
-    const blob=new Blob([JSON.stringify({format:"offline-band-setlist",version:2,exportedAt:new Date().toISOString(),listName,songs},null,2)],{type:"application/json"});
+    const blob=new Blob([JSON.stringify({format:"offline-band-setlist",version:3,exportedAt:new Date().toISOString(),listName,listTitle:listName,songs},null,2)],{type:"application/json"});
     const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="band-setlist-backup.json";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);$("status").textContent="Backup export requested. Save the JSON file somewhere safe.";
   });
   $("importBtn").addEventListener("click",()=>$("importFile").click());
@@ -186,8 +195,12 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
       if(!Array.isArray(incoming)||!incoming.every(s=>s&&typeof s.title==="string"&&typeof s.notes==="string"))throw new Error("Invalid backup");
       if(!confirm("Replace the current list with "+incoming.length+" imported songs? Export your current list first if you want to keep it."))return;
       songs=incoming.map(s=>({id:typeof s.id==="string"?s.id:makeId(),title:s.title,notes:s.notes}));
-      if(parsed&&!Array.isArray(parsed)&&typeof parsed.listName==="string")listName=parsed.listName.trim()||"SET LIST";
-      selectedId=null;save();render();$("status").textContent="Backup imported.";
+      if(parsed&&!Array.isArray(parsed)){
+        const importedName=[parsed.listName,parsed.listTitle,parsed.setListName].find(v=>typeof v==="string"&&v.trim());
+        if(importedName) listName=importedName.trim();
+        else listName="SET LIST";
+      } else { listName="SET LIST"; }
+      selectedId=null;save();render();$("status").textContent="Backup imported: "+(listName||"SET LIST");
     }catch(err){alert("That file doesn't look like a valid set-list backup.");}
     finally{e.target.value="";}
   });
