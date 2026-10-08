@@ -4,7 +4,7 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#101318",
-  "theme_color": "#101318",
-  "description": "An offline set list with editable song notes."
+  "background_color": "#1a2029",
+  "theme_color": "#1a2029",
+  "icons": []
 }
