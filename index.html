@@ -10,11 +10,11 @@
 <link rel="manifest" href="manifest.webmanifest">
 <title>Band Set List</title>
 <style>
-:root{color-scheme:dark;--bg:#1a2029;--panel:#000000;--line:#343d4b;--text:#f7f8fa;--muted:#b8c0cc;--accent:#9bd5ff;--danger:#ffb4ab}
+:root{color-scheme:dark;--bg:#1a2029;--panel:#000000;--line:#343d4b;--text:#f7f8fa;--muted:#b8c0cc;--accent:#00e5ff;--song-cyan:#00e5ff;--danger:#ffb4ab}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:18px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 header{position:sticky;top:0;z-index:5;background:#1a2029f2;border-bottom:1px solid var(--line);padding:14px 16px 12px;backdrop-filter:blur(12px)}
-h1{font-size:clamp(24px,4vw,34px);margin:0 0 4px;font-weight:900;letter-spacing:.01em;overflow-wrap:anywhere}
+h1{font-size:clamp(24px,4vw,34px);margin:0 0 4px;font-weight:900;letter-spacing:.01em;overflow-wrap:anywhere;color:#fff}
 .sub{color:var(--muted);font-size:14px}
 main{max-width:850px;margin:0 auto;padding:12px}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
@@ -31,7 +31,8 @@ textarea{min-height:115px;resize:both;tab-size:18;max-width:100%;min-width:100%;
 label{display:block;font-size:14px;font-weight:750;color:var(--muted);margin:12px 0 5px}
 .song{border:1px solid var(--line);border-radius:14px;background:var(--panel);margin:9px 0;overflow:hidden}
 .songhead{width:100%;display:flex;align-items:center;gap:10px;text-align:left;background:transparent;border:0;border-radius:0;padding:17px 14px;font-size:clamp(25px,5vw,35px);line-height:1.22;font-weight:950}
-.songhead .songtitle{flex:1;overflow-wrap:anywhere}
+.songhead .songtitle{flex:1;overflow-wrap:anywhere;color:var(--song-cyan)}
+.songhead.selected .songtitle{color:#fff}
 .chev{font-size:19px;color:var(--accent);flex-shrink:0}
 .notes{padding:0 15px 20px;font-size:clamp(30px,5.2vw,42px);line-height:1.18;color:#fff;overflow-x:auto}
 .note-line{min-height:1.18em;white-space:pre-wrap;overflow-wrap:anywhere}
@@ -151,7 +152,7 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
     if(!songs.length){root.innerHTML='<div class="empty">No songs yet. Tap “Add song” to begin.</div>';return;}
     songs.forEach((song,index)=>{
       const card=document.createElement("section");card.className="song";
-      const head=document.createElement("button");head.className="songhead";head.setAttribute("aria-expanded",String(selectedId===song.id));
+      const head=document.createElement("button");head.className="songhead"+(selectedId===song.id?" selected":"");head.setAttribute("aria-expanded",String(selectedId===song.id));
       const title=document.createElement("span");title.className="songtitle";title.textContent=(index+1)+". "+song.title;
       const chev=document.createElement("span");chev.className="chev";chev.textContent=selectedId===song.id?"▲":"▼";
       head.append(title,chev);
