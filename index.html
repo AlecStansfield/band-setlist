@@ -24,17 +24,16 @@ button.primary{background:#d7edff;color:#101820;border-color:#d7edff}
 button.small{font-size:15px;padding:7px 10px}
 button.danger{color:var(--danger)}
 input,textarea{width:100%;font:inherit;color:var(--text);background:#0c0f14;border:1px solid #4b5667;border-radius:10px;padding:11px}
-textarea{min-height:115px;resize:vertical}
+textarea{min-height:115px;resize:vertical;tab-size:8}
 label{display:block;font-size:14px;font-weight:750;color:var(--muted);margin:12px 0 5px}
 .song{border:1px solid var(--line);border-radius:14px;background:var(--panel);margin:9px 0;overflow:hidden}
 .songhead{width:100%;display:flex;align-items:center;gap:10px;text-align:left;background:transparent;border:0;border-radius:0;padding:17px 14px;font-size:clamp(25px,5vw,35px);line-height:1.22;font-weight:950}
 .songhead .songtitle{flex:1;overflow-wrap:anywhere}
 .chev{font-size:19px;color:var(--accent);flex-shrink:0}
-.notes{padding:0 15px 20px;font-size:clamp(30px,5.2vw,42px);line-height:1.45;color:#fff;overflow-x:auto}
-.note-line{min-height:1.45em;white-space:pre-wrap;overflow-wrap:anywhere}
-.note-table-wrap{max-width:100%;overflow-x:auto;margin:.1em 0 .25em}
-.note-table{border-collapse:collapse;font:inherit;line-height:inherit;white-space:pre;min-width:max-content}
-.note-table td{padding:0 1.05em .12em 0;vertical-align:top}
+.notes{padding:0 15px 20px;font-size:clamp(30px,5.2vw,42px);line-height:1.18;color:#fff;overflow-x:auto}
+.note-line{min-height:1.18em;white-space:pre-wrap;overflow-wrap:anywhere}
+.note-tab-wrap{max-width:100%;overflow-x:auto;margin:.02em 0 .08em}
+.note-tab-line{white-space:pre;tab-size:8;width:max-content;min-width:100%;min-height:1.18em}
 .songactions{display:flex;gap:7px;flex-wrap:wrap;padding:0 14px 13px}
 .empty{padding:22px;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}
 .hidden{display:none!important}
@@ -114,11 +113,11 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
     const lines=String(text||"No notes for this song yet.").split("\n");
     lines.forEach(line=>{
       if(line.includes("\t")){
-        const wrap=document.createElement("div");wrap.className="note-table-wrap";
-        const table=document.createElement("table");table.className="note-table";
-        const row=document.createElement("tr");
-        line.split("\t").forEach(cellText=>{const cell=document.createElement("td");cell.textContent=cellText;row.appendChild(cell);});
-        table.appendChild(row);wrap.appendChild(table);container.appendChild(wrap);
+        // Keep the literal TAB characters so the browser aligns text to tab stops,
+        // rather than converting each segment into a table cell with different spacing.
+        const wrap=document.createElement("div");wrap.className="note-tab-wrap";
+        const row=document.createElement("div");row.className="note-tab-line";row.textContent=line || " ";
+        wrap.appendChild(row);container.appendChild(wrap);
       } else {
         const row=document.createElement("div");row.className="note-line";row.textContent=line || " ";container.appendChild(row);
       }
