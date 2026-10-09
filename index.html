@@ -90,11 +90,162 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
 <script>
 (() => {
   const STORAGE_KEY = "offline-band-setlist-v1";
+  const starterListName = "Mimi Project -Southgate Inn - 10/Oct/2026";
   const starterSongs = [
-    {id: makeId(), title:"Sultans of Swing", notes:"Intro:\n\nKey / cues:\n\nSolo / ending:"},
-    {id: makeId(), title:"Have You Ever Seen the Rain", notes:"Count-in:\n\nKey / cues:\n\nEnding:"},
-    {id: makeId(), title:"New song", notes:"Add your notes here."}
-  ];
+    {
+        "id": "muzb1w12xe336p",
+        "title": "Fire [E]",
+        "notes": "Intro:\tStart with big power chord\n\t[ E, G, A, E ] x 2\nVerse1:\t[ E7+9, ] x 8\nFill:\t[ E, G, A, E ] x 2\nVerse2:\tShort verse!!!\nMid8:\tE, D, G, A, B (stop & drop)\nFill:\tE, G, A, E,\nEnd:\tE, E, E, E"
+    },
+    {
+        "id": "muzb1w12humvez",
+        "title": "Baby, I Love You [G]",
+        "notes": "Intro:\tG, G (single notes G & E string)\nVerse:\tG, G, C, C, G, G, D, G\n\tG, G, C, C, G, G, G, C, C, D stop\n\tG, G\n\tG, G, C, C, G, G, D, G\n\tG, G, C, C, G, G, G, C, C, D stop\n\tG, G,\nMiddle8: \tC, C, G, G, C, C, D, D\n\tG, G, G, G - Vamp with Sax on G \n\t until End"
+    },
+    {
+        "id": "muzb1w1293cie8",
+        "title": "Take Me To The River [E]",
+        "notes": "Intro:\tE9 (7th fret) with rising sax notes \n\t(B, C#, D, E, F#)\nVerse:\t[E7] x 8 (do NOT use top string)\n\tC, G, D, A, A, A\nChorus:\t[E7] x 8 (use top string)\nVerse:\t2\nChorus:\t2\nMiddle8:\tC#m, A, C#m, A, D, B, B, B\nChorus:\t3\nSolos:\tGuitar then Sax over verse AND chorus\nVerse:\tAdd drop down verse?\nEnd:\tE9 x n,    C, G, D, A, A, A\n\tDead stop after riff"
+    },
+    {
+        "id": "muzb6vaez77dgv",
+        "title": "How Do I Let A Good Man Down [D]",
+        "notes": "Intro:\tD, D (riff) \n\t[F bend up & down, E, C, D…] x 4\n\tA bit like “brown eyed girl”\nVerse:\tD, D, D, D,  D, D, D, D, \n\tG, A, G, A,  D, D, A7, stop\nFill:\tD, D, D, D,\n\t(down riff from E - 9 notes in triplets\n \t- start on 10th fret B string - note A)\nVerse:\tD, D, D, D,  D, D, D, D,\n\tG, A, G, A,  D, D, A7, stop\nFill:\tD, D (riff) \n\t(F bend up & down, E, C, D…]\n\t[down riff] x 2\nVerse:\tD, D, D, D,  D, D, D, D,\n\tG, A, G, A,  D, D, A7, stop\nFill:\tD, D, D, D,  D, D, D,\nEnd:\tBap^ Bap^"
+    },
+    {
+        "id": "muzb76tg9jchuz",
+        "title": "Dock of the Bay [C]",
+        "notes": "**Use chorus FX for chorus**\nIntro:\t[C, C, D, Eb, E, E, F, F, E, Eb, D] x2\nVerse:\t[C, C, D, Eb, E, E, F, F, E, Eb, D] x2\nChorus:\tC, Asus2, C, Asus2,\n\tC, C, C#, D, D, C, Asus2\nVerse2:\nChorus2:\t\nMiddle8:\t[ C, G, F, F ] x 3,   Bb, Bb, G, G\nVerse3:\nChorus3:\nSolo:\tC, G, C, C (Sax solo - then - Guitar solo)\n\tC, G, Asus2, Asus2\n\tC, G, C, C\n\tC, G, Asus2, Asus2\nVerse4:\nChorus4:\tFade to stop on last “sitting” x 3 \n\t(last is acapella)"
+    },
+    {
+        "id": "muzb7xpyye8wwe",
+        "title": "I Can't Stand The Rain [G]",
+        "notes": "Start with eerie Gm6 chord at 9th fret\nIntro:\tG7, G7, C7, G7\nVerse:\t[G7, G7, C7, G7] x 4\nBridge:\tF, F, G, G, Bb, Bb, Am, D7\nVerse:\t2\nBridge:\tG with riff, F riff, G riff, Bb, C\nVerse:\t3\nJam:\tover verse pattern\nEnd:\tStay on G - “I can’t stand the rain” x 4\n\tStop on “da da”"
+    },
+    {
+        "id": "muzb88mjmdpp1b",
+        "title": "⁠⁠I Can Tell [G]",
+        "notes": "Keep it sleazy! Rising chromatic riff\nUse two different patterns on 1st 2 verses\nIntro: \t G, G, G, G, C, C, G, G, D, C, G, G\nVerse:\t1\nVerse:\t2\nSolo:\tSax\nVerse:\t3 (quiet!!!)\nSolo:\tGuitar\nChorus:\tThen repeat last line 2 times\n\t Stops on “I Can Tell” - da da da / da da da / da"
+    },
+    {
+        "id": "muzb8lpebjmsfz",
+        "title": "It’s All Over Now [A]",
+        "notes": "Key:\tA - Riff \n\t(starts 12th fret E sixths descending)\nVerse1:\tA, A, A, A,   A, A, A, A\nChorus:\tE, D, A, A,   E, E, D, D\nVerse2:\nChorus:\nSolo:\tHarp solo\nChorus:\t\nSolo:\tGuitar Solo\nEnd:\t??"
+    },
+    {
+        "id": "muzb8uxu6fg6qm",
+        "title": "Bad Bad Feeling [Am]",
+        "notes": "Use Tremolo FX\nVerse1:\tAm, E7, Am, Am\n\tAm, Am, E7, E7\n\tAm, Am, Dm7, Dm7 (on 2nd verse: Eb dim7)\n\tAm, E7, (riff) Am, Am\nVerse2:\tSame but with Eb dim7 near end\nMiddle8:\tDm7, Am, Dm7, Am, E7, E7, Am, Am\n\tDm7, Am, Dm7, Am, Dm7, F, E7, E7\nSolo:\tOver verse\nVerse3:\tSame as first verse\nEnding:\tDm7, Am, Dm7, Am, F7+9,, E7+9\n\tAm, Am, “Something wrong…”\n\tAm, Am, “I got a bad feeling…”"
+    },
+    {
+        "id": "muzb96xhd2m1y3",
+        "title": "Smooth Operator [Dm]",
+        "notes": "\t**Use Chorus FX**\n\t**Don’t forget instrumental break!**\nIntro:\tStarts with bass run\n\tDmin, Dmmaj7, Dmaj7, G9/D\nVerse:\t[Dm7, Am, Gm7, Am7] x 8\n\t[Gm7, Am7, Dm, Dm] x 3\n\tLast 3 note stop A,C,D\nChorus:\t[Dm7, Am, Gm7, Am7] x 8\nSolo:\tGuitar - followed by - Sax\nVerse:\t\nChorus:\t\nSolo:\tSax solo - change chords back to intro.\n\tThen I signal end."
+    },
+    {
+        "id": "muzb9mrkau4ix3",
+        "title": "Big Bad Handsome Man [Bbm]",
+        "notes": "**Use slap-back echo & big reverb**\nSax starts x 2 on Bbm\nJust 2 chords alternating - Bbm, F\n6th position, Bbm arpeggio to F on B string\n5th position, F arpeggio to F on B string\n\nVerse:\tthen chorus x 3\nChorus:\tVamp it - offbeats\nEnding:\t“Big” F^ stop, “Bad” F^ stop, wait,\n\t“I’m so bad….” come in with Bb on “mmmm”\n"
+    },
+    {
+        "id": "muzb9vak4sbw4k",
+        "title": "Need Your Love So Bad [A]",
+        "notes": "\tIn A\nIntro:\tSingle guitar notes\nVerse:\t1\nVerse:\t2\nMiddle8:\nSolo:\tHarmonica\nSolo:\tGuitar\nMiddle8:\tagain\nVerse:\t3\nEnd:\t?"
+    },
+    {
+        "id": "muzzbx10txw4r4",
+        "type": "separator"
+    },
+    {
+        "id": "muzbac4lafishd",
+        "title": "Do I Move You [Am]",
+        "notes": "Minor Blues in Am\n\nSingle note bluesy turn around\nat 14th fret on G string: \nA, C, D, (bend) E, E, D, D, C\n\nOn verse, slide G&D strings from\nfret 5 to 7 and back.\n\nIntro:\t\nVerse1:\tAm, Am, D7, D79, \n\tAm, Am, E, ^E, riff, Am, Am\nChorus:\t"
+    },
+    {
+        "id": "muzbao2g1deoy2",
+        "title": "Slipped, Tripped, Fell In Love [D]",
+        "notes": "Intro:\tStart with guitar riff\n\t(D, C, D, C, G, F, G, F, D, C) D, D\nVerse:\tD, D, D, D, D, D, D, D, \n\tG, G, G, G, A, A, A, A\nChorus:\tD, D, D, D, D, D, D, D\nVerse:\t2\nChorus:\t2\nSolo:\tD, D, D, D, D, D, D, D - Guitar\nSolo:\tG, G, G, G, A, A, A, A - Sax\nVerse:\tD, D, D, D, D, D, D, D, \n\tG, G, G, G, A, A, A, A\nChorus:\tD, D, D, D, D, D, D, D\nSolo:\tD, D, D, D, D, D, D, D,\n\tG, G, G, G, A, A, A, A\nChorus:\tD, D, D, D, D, D, D, D\nEnd:\tEnd on sax trill (G# to A)"
+    },
+    {
+        "id": "muzbavd3w09zmy",
+        "title": "You’ve Got The Love [G]",
+        "notes": "Intro:\tGuitar intro: x4 (10th fret Gm)\n\t[Riff’s F⇒G + Guitar into x4] x2\nVerse:\t[F⇒G, Bb⇒C, F⇒G, F⇒G] x4\nChorus:\t[G, C, G, G] x2\n\t⇐ Funk 7th at 3rd fret\n\tG, Bm7, C, C#dim7  \t\n\t⇐ Chords\nFill:\tI love ya, I need ya \t\t\n\t⇐ with solo fills @15th fret\nVerse:\t[F⇒G, Bb⇒C, F⇒G, F⇒G] x4\nChorus:\t[G, C, G, G] x2\n\tG, Bm7, C, C#dim7\nFill:\tI love ya, I need ya \t\t\n\t⇐ with solo fills\n\t[G, C, G, G] x4     \t\t\n\t⇐ with solo fills\nEnd:\t??"
+    },
+    {
+        "id": "muzbc2ubh74794",
+        "title": "You Don’t Know What Love Is [Gm]",
+        "notes": "\tMinor Blues in Gm\nIntro:\tAll in with solo over first round\nVerse1:\tCm, Gm, Cm, Gm, \t\n\tDm, Cm, G, stop (C#7)\nChorus:\t"
+    },
+    {
+        "id": "muzbdbz326vjpk",
+        "title": "Chain of Fools⁠ [A]",
+        "notes": "Key:\tA\n\t“Woop, woop” - don’t forget!\nSolo:\tSax\nSolo:\tGuitar - then solo together!\n\tSolo with Bill\nEnd:\tEnd on dap! (not dap, dap!)"
+    },
+    {
+        "id": "muzbdn5eysyglw",
+        "title": "What's Going On [E]",
+        "notes": "\t**Use Chorus FX**\nVerse:\tEmaj7, C#min7, Emaj7, C#min7, F#min7, B7\n\tEmaj7, C#min7, Emaj7, C#min7, F#min7, B7\nChorus:\tF#min7, B7, F#min7, B7, F#min7, B7, \n\tEmaj7, C#min7, Emaj7, C#min7,\nBreak:\t[Am79, Am79, Am79, Am79] x2\n\tC#m7, C#m7, B7, B7\n\tKeep rhythm going in second Am79 section\nVerse\tthen end"
+    },
+    {
+        "id": "muzbdvmarnsrbd",
+        "title": "This Old Heart of Mine [Bb]",
+        "notes": "\t**Don’t forget SHORT 2nd VERSE!!!!**\nIntro:\tBb, Dm, Eb, Dm, Cm, F\nVerse1:\t[Bb, Dm, Eb, Dm, Cm, F] x 2\nBridge:\tCm, F, Dm, Gm, Cm, F, Cm, Dm, Eb, F\nChorus:\t[Bb, Dm, Eb, Dm, Cm, F] x 2\nVerse2:\tBb, Dm, Eb, Dm, Cm, F (Short verse!)\nBridge:\tCm, F, Dm, Gm, Cm, F, Cm, Dm, Eb, F\nChorus:\t[Bb, Dm, Eb, Dm, Cm, F] x 2\nSolo:\tSax (over Verse and Bridge)\nVerse3:\tas first verse\nChorus:\tas verse slow down"
+    },
+    {
+        "id": "muzbe3nzmpz4ln",
+        "title": "I’m Tore Down [D]",
+        "notes": "\tKey: D\nIntro:\tStarts with lead on turnaround: \n\tA, G, Dm\nVerse:\tStandard 12 bar blues\n\tFirst stops = 4\n\t2nd & 3rd Stops = 8\nEnd:"
+    },
+    {
+        "id": "muzbecmfz0821i",
+        "title": "Barefootin’ [C#]",
+        "notes": "Key:\tC# \n\tRiff (starts on G#) at the\n\tend of every verse\nIntro:\tDouble stops from 9th to 12th fret\nVerse:\t\nChorus:\nSolo:\tGuitar Solo at end of song\nEnd:"
+    },
+    {
+        "id": "muzbeke2l3fxyt",
+        "title": "Show Me [G]",
+        "notes": "\tIn G\nIntro:\tSingle notes with bass - \n\tstarts 7th B G A B B D E D\nVerse1:\tG, G, C, C (ding, ding),   \n\tG, G, C, C\n\t[D, D, D, D] x4 -\n \tRiff (G, F, E, D, B, D, B, G)\nVerse2:\tG, G, D, D,   C, C, Bb, Bb,   G - - - \nBreak:\tGap - drums then bass \n\t[G D E G] x4 rising up\nVerse3:\tas Verse 1\nVerse4:\tas Verse 2\nVerse5:\tas Verse 1\nVerse6:\tas Verse 2"
+    },
+    {
+        "id": "muzberihacdaag",
+        "title": "Hound Dog [E]",
+        "notes": "\tIn E\nChorus:\tE, E, A, A, B, B, E, E\nVerse:\tE, E, A, A, B, B, E, E\nChorus:\t2\nSolo:\tHarmonica\nSolo:\tGuitar\nVerse:\t2\nChorus:\t3\nSolo:\tGuitar to End"
+    },
+    {
+        "id": "muzbeyvx2egn9r",
+        "title": "Got My Mojo Working [E]",
+        "notes": "High energy - Use two different patterns\nDrums start / then Bass / then Guitar\n\nIntro:\tE\nVerse1:\tE, E, E, E,  A, A, E, E,  B, A, E, E\nVerse2:\tE, E, E, E,  A, A, E, E,  B, A, E, E\nSolo:\tSax\nSolo:\tGuitar\nVerse3:\tE, E, E, E,  A, A, E, E,  B, A, E, E\nChorus:\tGot my Mojo working\nEnd:\tBluesy descending 6ths from 4th fret."
+    },
+    {
+        "id": "muzzd4cg5s37ud",
+        "type": "separator"
+    },
+    {
+        "id": "muzbfa2zpqtkge",
+        "title": "Don't Go To Strangers [A]",
+        "notes": "Intro:\tAs verse\nVerse1:\tA, Amaj7, F#m, F#7, \n\tBm7, Bm7b5, E7, E7, \n\tA, Bm7, E7\nVerse2:\tA, Amaj7, F#m, F#7, \n\tBm7, Bm7b5, E7, E7,\n\tA, A7\nMiddle8:\tEm7, A7, Em7, A7,\n\tDmaj7, Dmaj7, F#m7, B7, \n\tF#m7, B7, Bm7, E7\nVerse3:\t\nSolo:\tSax\nMiddle8:\t⇐ ! ! ! ! !\nSolo:\tGuitar\nMid8:\t⇐ ! ! ! ! !\nVerse:\tto end"
+    },
+    {
+        "id": "muzbfh5u39njhr",
+        "title": "The Nearness of You [Eb]",
+        "notes": "\tIn C#\nIntro:\tAs instrumental\nVerse:\t1\nVerse:\t2\nMiddle8:\t-\nSolo:\tSax\nMiddle8:\t-\nVerse:\t3\n\tEnd on instrumental intro"
+    },
+    {
+        "id": "muzbfolnuass5h",
+        "title": "When Something is Wrong With My Baby [C]",
+        "notes": "Verse:\tC, C, Am, Am, F, F, G, G\nChorus:\tEm, Em, Am, Am, Em, Em, F, F\n\tC, C, Dm, Dm, C, F, C, Dm7, G\nVerse:\t2\nSolo:\tSax\nSolo:\tGuitar\nVerse:\t3\nEnd:\t“Something is wrong” x3"
+    },
+    {
+        "id": "muzbfw3wan3qwf",
+        "title": "I’d Rather Go Blind [A]",
+        "notes": "\t**Use Tremolo FX**\n\tRemember notes between chords\nIntro:\tA, Bm\nVerse:\t-\nChorus:\t-\nSolos:\tAs and when!"
+    },
+    {
+        "id": "muzbg4wjy8ldv2",
+        "title": "We're Still Friends [Am]",
+        "notes": "\t**Use Tremolo & Echo FX**\n\tStart with staccato Am x 8\nVerse:\t1\nVerse:\t2\nSolo:\tSax\nSolo:\tGuitar\nVerse:\t1\nVerse:\t2\nEnd:\t"
+    }
+];
   const loaded = loadData();
   let songs = loaded.songs;
   let listName = loaded.listName;
@@ -113,7 +264,7 @@ footer{max-width:850px;margin:0 auto;padding:8px 16px 24px;color:var(--muted);fo
         if(data && Array.isArray(data.songs)) return {songs:data.songs,listName:typeof data.listName==="string"&&data.listName.trim()?data.listName.trim():"SET LIST"};
       }
     } catch(e) {}
-    return {songs:starterSongs,listName:"SET LIST"};
+    return {songs:starterSongs,listName:starterListName};
   }
   function save(){
     try {localStorage.setItem(STORAGE_KEY,JSON.stringify({listName,songs}));$("status").textContent="Saved on this iPad.";}
